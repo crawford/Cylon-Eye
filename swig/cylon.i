@@ -2,3 +2,5 @@
 %{
 #include "cylon.h"
 %}
+
+%include "cylon.h"
