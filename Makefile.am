@@ -1,7 +1,7 @@
-lib_LTLIBRARIES = libcylon.la
-libcylon_la_SOURCES = cylon.c
-libcylon_la_LDFLAGS = -release @VERSION@
-include_HEADERS = cylon.h
+AUTOMAKE_OPTIONS = foreign
+ACLOCAL_AMFLAGS = -I m4
+
+SUBDIRS = src swig
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = cylon.pc

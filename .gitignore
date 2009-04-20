@@ -20,3 +20,5 @@ libcylon.la
 libtool
 ltmain.sh
 missing
+config.h
+stamp-h1
