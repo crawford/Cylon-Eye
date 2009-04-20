@@ -1,5 +1,13 @@
 #include "cylon.h"
 
+#define SAFE_C_CALL_CUSTOM(cond) \
+	if( cond ) { \
+		cerr << strerror(errno) << endl; \
+		exit(EXIT_FAILURE); \
+	}
+
+#define SAFE_C_CALL(call) SAFE_C_CALL_CUSTOM((call) == -1)
+
 int setDisplay( panel_t panel, const frame_t* const frame ) {}
 int setAnimation( panel_t panel, const frame_t const frame[], const int num_frames, const int_fast8_t speed ) {}
 int start( panel_t panel ) {}
@@ -17,7 +25,7 @@ const char* cyl_strerror( const int errcode ) {
 			cyl_errbuf = NULL;
 			return strerror(errcode);
 		default:
-			asprintf(&cyl_errbuf, "Unknown error %d", errcode);
+			SAFE_C_CALL(asprintf(&cyl_errbuf, "Unknown error %d", errcode))
 			break;
 	}
 	
