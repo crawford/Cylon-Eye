@@ -25,6 +25,8 @@ AC_CONFIG_HEADERS([config.h])
 
 AM_INIT_AUTOMAKE(AC_PACKAGE_NAME, AC_PACKAGE_VERSION)
 
+AC_CANONICAL_HOST
+
 dnl -----------------------------------
 # Static/Shared binaries 
 
@@ -121,6 +123,54 @@ else
 	fi
 fi
 AM_CONDITIONAL(WITH_PYTHON, [test "x$use_python" = "xYes"])
+
+dnl -----------------------------------
+dnl INCLUDES and LIBS for JAVA
+
+AC_ARG_ENABLE(java,
+  [AC_HELP_STRING([--enable-java=yes], [java language bindings])],
+  [], [enable_java=yes])
+
+if test "x$enable_java" != "xyes"; then
+  use_java="No (disabled)"
+else
+  if test "x$use_swig" != "xYes"; then
+    use_java="No (swig not available)"
+  else
+    if test `$SWIG -help 2>&1 | $GREP -c '\-java *- Generate'` = 0; then
+      use_java="No (swig does not support -java option)"
+    else
+      AC_CHECK_PROG(JAVA,java,java)
+      if test "x$JAVA" = "x"; then
+        use_java="No (java not available)"
+      else
+	case "${host_os}" in
+	  *darwin* )
+            JAVA_INCLUDES="-I/System/Library/Frameworks/JavaVM.framework/Headers"
+	    JAVA_LIBS=
+	    ;;
+	  *)
+            JAVA_INCLUDES=
+	    JAVA_LIBS=
+	    ;;
+        esac
+	save_CPPFLAGS=$CPPFLAGS
+        CPPFLAGS="$CPPFLAGS $JAVA_INCLUDES"
+        AC_CHECK_HEADER(jni.h,,[
+            use_java="No (missing header)"
+  	    JAVA=
+        ])
+        CPPFLAGS="$save_CPPFLAGS"
+        if test "x$JAVA" != "x"; then
+          use_java="Yes"
+	  AC_SUBST(JAVA_INCLUDES)
+          AC_SUBST(JAVA_LIBS)
+        fi
+      fi
+    fi
+  fi
+fi
+AM_CONDITIONAL(WITH_JAVA, [test "x$use_java" = "xYes"])
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdint.h stdlib.h string.h])

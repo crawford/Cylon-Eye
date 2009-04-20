@@ -26,7 +26,7 @@ int setAnimation( panel_t panel, const frame_t const frame[], const int num_fram
 	printf("setAnimation\n");
 }
 
-int start( panel_t panel ) {
+int start( panel_t panel, const int repeat_count ) {
 	printf("start\n");
 }
 
