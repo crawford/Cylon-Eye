@@ -1,14 +1,9 @@
 #define _GNU_SOURCE
 #include "cylon.h"
-#include "config.h"
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
-#ifndef HAVE_ASPRINTF
-#error "No non-GNU implementation of asprintf available yet."
-#endif
 
 #define SAFE_C_CALL_CUSTOM(cond) \
 	if( cond ) { \
