@@ -13,27 +13,27 @@
 
 #define SAFE_C_CALL(call) SAFE_C_CALL_CUSTOM((call) == -1)
 
-int setDisplay( panel_t panel, const frame_t* const frame ) {
+int setDisplay( panel_t* panel, const frame_t* const frame ) {
 	printf("setDisplay\n");
 }
 
-int setAnimation( panel_t panel, const frame_t const frame[], const int num_frames, const int_fast8_t speed ) {
+int setAnimation( panel_t* panel, const frame_t const frame[], const int num_frames, const int_fast8_t speed ) {
 	printf("setAnimation\n");
 }
 
-int start( panel_t panel, const int repeat_count ) {
+int start( panel_t* panel, const int repeat_count ) {
 	printf("start\n");
 }
 
-int cy_pause( panel_t panel ) {
+int cy_pause( panel_t* panel ) {
 	printf("pause\n");
 }
 
-int reset( panel_t panel ) {
+int reset( panel_t* panel ) {
 	printf("reset\n");
 }
 
-int ping( panel_t panel ) {
+int ping( panel_t* panel ) {
 	printf("ping\n");
 }
 
@@ -53,9 +53,3 @@ const char* cyl_strerror( const int errcode ) {
 	
 	return cyl_errbuf;
 }
-
-char* hello() {
-	return "Hello World!";
-}
-
-int main() {}

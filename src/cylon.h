@@ -17,12 +17,11 @@ typedef struct frame_t_ {
 	int_fast16_t duration;
 } frame_t;
 
-int setDisplay( panel_t panel, const frame_t* const frame );
-int setAnimation( panel_t panel, const frame_t const frame[], const int num_frames, const int_fast8_t speed );
-int start( panel_t panel, const int repeat_count );
-int cy_pause( panel_t panel );
-int reset( panel_t panel );
-int ping( panel_t panel );
-char* hello();
+int setDisplay( panel_t* panel, const frame_t* const frame );
+int setAnimation( panel_t* panel, const frame_t const frame[], const int num_frames, const int_fast8_t speed );
+int start( panel_t* panel, const int repeat_count );
+int cy_pause( panel_t* panel );
+int reset( panel_t* panel );
+int ping( panel_t* panel );
 
 #endif
