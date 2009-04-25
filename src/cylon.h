@@ -1,27 +1,44 @@
 #ifndef _CYLON_H
 #define _CYLON_H
 
-#include <stdint.h>
+#include <glib.h>
 
-#define CYL_SYSTEM -1 // Other system error, check errno for details.
+#define MAX_FRAMES 200
 
-const char* cyl_strerror( const int errcode );
-
-typedef struct cyl_panel_t_ {
-	int_fast64_t xbee;
-	int_fast8_t panel;
+typedef struct {
+	guint64 xbee;
+	guint8 panel;
 } cyl_panel_t;
 
-typedef struct cyl_frame_t_ {
-	int_fast8_t intensity;
-	int_fast16_t duration;
+typedef struct {
+	guint8 intensity[16];
+	guint16 duration;
 } cyl_frame_t;
 
-int cyl_setDisplay( cyl_panel_t* panel, const cyl_frame_t* const frame );
-int cyl_setAnimation( cyl_panel_t* panel, const cyl_frame_t const frame[], const int num_frames, const int_fast8_t speed );
-int cyl_start( cyl_panel_t* panel, const int repeat_count );
-int cyl_pause( cyl_panel_t* panel );
-int cyl_reset( cyl_panel_t* panel );
-int cyl_ping( cyl_panel_t* panel );
+typedef enum {
+	CYL_LED,
+	CYL_JUMP,
+	CYL_SET_DATA,
+	CYL_SET_FRAME,
+	CYL_SET_POINTER,
+	CYL_SET_PERIOD,
+	CYL_START,
+	CYL_PAUSE,
+	CYL_RESET,
+	CYL_NOOP
+} cyl_op;
+
+
+gint cyl_setDisplay( cyl_panel_t* panel, const cyl_frame_t* const frame );
+gint cyl_setAnimation( cyl_panel_t* panel, const cyl_frame_t const frames[], const guint num_frames, const guint16 speed );
+gint cyl_start( cyl_panel_t* panel, const guint8 repeat_count );
+gint cyl_pause( cyl_panel_t* panel );
+gint cyl_reset( cyl_panel_t* panel );
+gint cyl_ping( cyl_panel_t* panel );
+gint cyl_init( gint fd );
+gint cyl_free();
+gint cyl_flush();
+gsize cyl_raw( const guint8* buf, const gssize count );
+gsize cyl_packet( const cyl_op operation, const guint8* buf );
 
 #endif
