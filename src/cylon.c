@@ -173,7 +173,7 @@ inline static void cyl_pack( guint8* dest, const guint8* const src, guint count 
 
 inline gint cyl_setDisplay( cyl_panel_t* panel, const cyl_frame_t* const frame ) {
 	if( G_UNLIKELY(cyl_fd == -1) ) return CYL_UNINITIALIZED;
-	guint8 packet[6];
+	guint8 packet[8];
 	cyl_pack(packet, frame->intensity, 16);
 	cyl_packet( CYL_SET_FRAME, packet, panel );
 }
