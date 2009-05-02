@@ -3,7 +3,7 @@
 
 #include <glib.h>
 
-#define MAX_FRAMES 200
+#define CYL_MAX_FRAMES 200
 
 typedef struct {
 	guint64 xbee;
@@ -38,7 +38,8 @@ gint cyl_ping( cyl_panel_t* panel );
 gint cyl_init( gint fd );
 gint cyl_free();
 gint cyl_flush();
-gsize cyl_raw( const guint8* buf, const gssize count );
-gsize cyl_packet( const cyl_op operation, const guint8* buf );
+gsize cyl_select_panel( const cyl_panel_t* const panel );
+gsize cyl_write( const guint8* const buf, const gssize count, const guint64 dest );
+gsize cyl_packet( const cyl_op operation, const guint8* const buf, const cyl_panel_t* const dest );
 
 #endif
