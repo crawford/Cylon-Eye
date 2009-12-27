@@ -1,0 +1,14 @@
+<panels>
+	<!-- ZID is the ID for the zigbee on the comm module -->
+	<!-- PID is the panel number on the comm board (1-4) -->
+	<!-- The X value is the width of one panel -->
+	<!-- The Y value is the height of one panel -->
+
+
+	<panel zid="0013A2004031A660" pid="1" x="0" y="0"/>
+	<panel zid="0013A2004031A660" pid="2" x="1" y="0"/>
+	<panel zid="0013A2004031A650" pid="1" x="0" y="1"/>
+	<panel zid="0013A2004031A650" pid="2" x="1" y="1"/>
+	<panel zid="0013A2004031A643" pid="1" x="0" y="2"/>
+	<panel zid="0013A2004031A643" pid="2" x="1" y="2"/>
+</panels>
