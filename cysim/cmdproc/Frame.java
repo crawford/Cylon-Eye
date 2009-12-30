@@ -1,3 +1,5 @@
+import java.lang.Number;
+
 class Frame {
 	private int time;
 	private String displayData;
@@ -55,7 +57,18 @@ class Frame {
 		return displayString;
 	}
 	
+	public static byte[] toRawDisplayData(String data) {
+		return new byte[0];
+	}
+	
 	public static int toGotoAddress(byte data[]) {
 		return ((data[0] & 0xFF) << 8) + (data[1] & 0xFF);
+	}
+	
+	public static byte[] toRawGotoAddress(int address) {
+		byte out[] = new byte[2];
+		out[0] = (new Integer((address >> 8) & 0xFF)).byteValue();
+		out[1] = (new Integer(address & 0xFF)).byteValue();
+		return out;
 	}
 }

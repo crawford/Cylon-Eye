@@ -4,7 +4,7 @@ class Panel {
 	private String ZID;
 	private String PID;
 	private ArrayList<Frame> frames;
-	private String data;
+	private String displayData;
 	private boolean auxLED;
 	private int pointer;
 	//private ??? timer;
@@ -13,12 +13,12 @@ class Panel {
 		ZID = zid;
 		PID = pid;
 		frames = new ArrayList<Frame>();
-		data = "0000000000000000";
+		displayData = "0000000000000000";
 		auxLED = false;
 		pointer = 0;
 	}
 	
-	public void evaluate(byte command[]) {
+	public String evaluate(byte command[]) {
 		//Strip the command character from the front and the newline
 		// from the back
 		byte payload[] = new byte[command.length - 2];
@@ -29,7 +29,7 @@ class Panel {
 		switch(command[0]) {
 			case 'C':
 				//Overwrite the current display data and stop animation
-				data = Frame.toDisplayData(payload);
+				displayData = Frame.toDisplayData(payload);
 				//TODO
 				break;
 			case 'L':
@@ -50,19 +50,26 @@ class Panel {
 				pointer = Frame.toGotoAddress(payload);
 				break;
 			case 'S':
-				break;
-			case 'P':
+				//Start the animation from the current pointer value
 				break;
 			case 'R':
+				//Reset and pause the animation
+				pointer = 0;
+			case 'P':
+				//Pause the animation
 				break;
 			case 'T':
+				//Set animation speed
 				break;
 			case 'N':
+				//No operation
 				break;
 			case 'B':
-				break;
+				return "B" + Frame.toRawDisplayData(displayData) + "\n";
 			case 'Y':
-				break;
+				return "Y" + Frame.toRawGotoAddress(pointer) + "\n";
 		}
+		
+		return "";
 	}
 }
