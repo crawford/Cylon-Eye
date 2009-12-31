@@ -30,6 +30,10 @@ class Frame {
 		return (time == 0);
 	}
 	
+	public int getDisplayTime() {
+		return time;
+	}
+	
 	public int getGotoAddress() {
 		return gotoAddress;
 	}
@@ -63,6 +67,10 @@ class Frame {
 	
 	public static int toGotoAddress(byte data[]) {
 		return ((data[0] & 0xFF) << 8) + (data[1] & 0xFF);
+	}
+	
+	public static int toTimeValue(byte data[]) {
+		return toGotoAddress(data);
 	}
 	
 	public static byte[] toRawGotoAddress(int address) {
