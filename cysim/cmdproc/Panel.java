@@ -35,9 +35,9 @@ class Panel {
 			case 'L':
 				//Turn on/off the auxilary LED
 				if(payload[0] == 0) {
-					auxLED = true;
-				} else {
 					auxLED = false;
+				} else {
+					auxLED = true;
 				}
 				break;
 			case 'D':
@@ -71,5 +71,9 @@ class Panel {
 		}
 		
 		return "";
+	}
+	
+	public String toString() {
+		return ZID + "-" + PID + "-" + displayData + "-" + (auxLED ? "1" : "0");
 	}
 }
