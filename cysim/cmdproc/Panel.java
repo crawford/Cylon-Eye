@@ -89,6 +89,7 @@ class Panel {
 	
 	private void pause() {
 		timer.cancel();
+		timer = new Timer();
 	}
 	
 	private void resume() {
