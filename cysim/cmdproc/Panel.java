@@ -53,12 +53,14 @@ class Panel {
 				break;
 			case 'S':
 				//Start the animation from the current pointer value
+				pause();
 				resume();
 				break;
 			case 'R':
 				//Reset and pause the animation
 				pause();
 				pointer = 0;
+				break;
 			case 'P':
 				//Pause the animation
 				pause();
