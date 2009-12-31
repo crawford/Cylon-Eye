@@ -42,16 +42,16 @@ class Frame {
 		String displayString = "";
 		
 		//Convert the 6 bytes of data to array of booleans
-		int bits[] = new int[48];
+		boolean bits[] = new boolean[48];
 		for(int b = 0; b < 6; b++) {
 			for(int p = 0; p < 8; p++) {
-				bits[b*8 + p] = (data[b] << p) & 0x80;
+				bits[b*8 + p] = ((data[b] << p) & 0x80) != 0;
 			}
 		}
 		
 		//Convert 3-bit values to integers and store in displayString
 		for(int i = 0; i < 16; i++) {
-			displayString += bits[3*i + 2]*4 + bits[3*i + 1]*2 + bits[3*i];
+			displayString += (bits[3*i + 2] ? 1 : 0) + (bits[3*i + 1] ? 2 : 0) + (bits[3*i] ? 4: 0);
 		}
 		
 		return displayString;
