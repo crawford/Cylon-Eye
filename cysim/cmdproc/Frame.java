@@ -5,13 +5,13 @@ class Frame {
 	private String displayData;
 	private int gotoAddress;
 	
-	//inst - 6 byte string in the format TTDDDD, where TT is a time value
-	// and DDDD and is display data, or in the format 00AA00, where AA is
+	//inst - 8 byte string in the format TTDDDDDD, where TT is a time value
+	// and DDDDDD and is display data, or in the format 00AA0000, where AA is
 	// an address
 	public Frame(byte inst[]) {
 		time = ((inst[0] & 0xFF) << 8) + (inst[1] & 0xFF);
 		
-		//Seperate the 4 bytes of data
+		//Seperate the 6 bytes of data
 		byte data[] = new byte[6];
 		for(int i = 0; i < 6; i++) {
 			data[i] = inst[i + 2];
