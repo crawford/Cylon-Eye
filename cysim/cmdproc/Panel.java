@@ -18,7 +18,7 @@ class Panel {
 		ZID = zid;
 		PID = pid;
 		frames = new ArrayList<Frame>();
-		displayData = "0000000000000000";
+		setDisplay("0000000000000000");
 		auxLED = false;
 		pointer = 0;
 		timer = new Timer();
