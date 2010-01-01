@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent) : QDialog(parent), ui(new Ui::MainWindow
 }
 
 MainWindow::~MainWindow() {
-    delete ui;
+	delete ui;
 	cmdProc->kill();
 }
 
@@ -100,18 +100,15 @@ void MainWindow::readCmdProc() {
 		line = cmdProc->readLine();
 		qDebug() << line;
 
-		//Parse input line into zid, pid, and data
+		//Parse input line into zid, pid, data, and led
 		list = line.split('-');
 		zid = (list[0]).toLongLong(&ok, 16);
 		qDebug() << "zid: " << list[0];
 
-		list = (list[1]).split(' ');
-		pid = (list[0]).toShort(&ok, 16);
-		qDebug() << "pid: " << list[0];
+		pid = (list[1]).toShort(&ok, 16);
+		qDebug() << "pid: " << list[1];
 
-		//line holds the data for the panel
-		line = list[1];
-		qDebug() << "data: " << line;
+		qDebug() << "data: " << list[2];
 
 		//Find the panel object we need to modify
 		for(short i = 0; i < panels->count(); i++) {
@@ -128,8 +125,11 @@ void MainWindow::readCmdProc() {
 		}
 
 		for(short i = 0; i < 16; i++) {
-			panel->setIntensity(i, line.mid(i, 1).toShort(&ok, 10));
+			panel->setIntensity(i, list[2].mid(i, 1).toShort(&ok, 10));
 		}
+
+		panel->setAuxLED(list[3] != "0");
+
 		panel->update();
 	}
 }

@@ -13,12 +13,14 @@ public:
 	short getPID();
 	short getIntensity(short channel);
 	void setIntensity(short channel, short value);
+	void setAuxLED(bool val);
 
 private:
 	QRectF _size;
 	short _intensities[16];
 	unsigned long long _ZID;
 	short _PID;
+	bool _auxLED;
 };
 
 #endif
