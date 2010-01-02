@@ -1,4 +1,4 @@
-class CmdProc {
+public class CmdProc {
 	public static void main(String args[]) {
 		
 	

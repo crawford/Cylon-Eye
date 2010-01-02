@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-class Panel {
+public class Panel {
 	private final double TIMER_SCALE_FACTOR = 1;	// milliseconds / Panel-Time-Period
 	private String ZID;
 	private String PID;

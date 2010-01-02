@@ -1,6 +1,6 @@
 import java.lang.Number;
 
-class Frame {
+public class Frame {
 	private int time;
 	private String displayData;
 	private int gotoAddress;

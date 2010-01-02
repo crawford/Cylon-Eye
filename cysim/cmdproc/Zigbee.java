@@ -1,9 +1,9 @@
 import java.util.ArrayList;
 
-class Zigbee {
+public class Zigbee {
 	private String ZID;
 	private ArrayList<Panel> panels;
-	int curChannel;
+	private int curChannel;
 	
 	public Zigbee(String zid) {
 		ZID = zid;
