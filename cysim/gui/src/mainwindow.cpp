@@ -138,5 +138,5 @@ void MainWindow::readCmdProc() {
 
 void MainWindow::readCmdProcError() {
 	cmdProc->setReadChannel(QProcess::StandardError);
-	qDebug() << QString(cmdProc->readAll());
+	qDebug() << cmdProc->readAll().data();
 }
