@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
 		return -2;
 	}
 	if(!QFile::exists("CmdProc.class")) {
-		qCritical("Error: command processor ('cmdproc.class') not found");
+		qCritical("Error: command processor ('CmdProc.class') not found");
 		return -3;
 	}
 

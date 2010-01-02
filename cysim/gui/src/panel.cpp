@@ -1,4 +1,4 @@
-#include "Panel.h"
+#include "panel.h"
 #define PADDING 5
 
 Panel::Panel(unsigned long long ZID, short PID) : QGraphicsItem(), _size(0, 0, 245, 50) {
