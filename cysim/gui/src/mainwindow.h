@@ -28,6 +28,7 @@ private:
 
 private slots:
 	void readCmdProc();
+	void readCmdProcError();
 };
 
 #endif // MAINWINDOW_H

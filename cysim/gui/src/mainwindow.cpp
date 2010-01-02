@@ -84,6 +84,7 @@ bool MainWindow::startCmdProc() {
 	}
 
 	connect(cmdProc, SIGNAL(readyReadStandardOutput()), this, SLOT(readCmdProc()));
+	connect(cmdProc, SIGNAL(readyReadStandardError()), this, SLOT(readCmdProcError()));
 	return true;
 }
 
@@ -96,6 +97,7 @@ void MainWindow::readCmdProc() {
 	Panel *panel = 0;
 
 	while(cmdProc->canReadLine()) {
+		cmdProc->setReadChannel(QProcess::StandardOutput);
 		qDebug() << "Parsing data";
 		line = cmdProc->readLine();
 		qDebug() << line;
@@ -132,4 +134,9 @@ void MainWindow::readCmdProc() {
 
 		panel->update();
 	}
+}
+
+void MainWindow::readCmdProcError() {
+	cmdProc->setReadChannel(QProcess::StandardError);
+	qDebug() << cmdProc->readLine();
 }
