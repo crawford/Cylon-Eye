@@ -125,7 +125,7 @@ class Panel {
 			} 
 			
 			setDisplay(frame.getDisplayData());
-			currentFrameTime = frame.getDisplayTime();
+			currentFrameTime = frame.getDisplayTime() - 1;
 			pointer++;
 		}
 	}
