@@ -23,6 +23,10 @@ public class Panel {
 		pointer = 0;
 		timer = new Timer();
 	}
+
+	public int getPID() {
+		return Integer.parseInt(PID);
+	}
 	
 	public String evaluate(byte command[]) {
 		//Strip the command character from the front and the newline
