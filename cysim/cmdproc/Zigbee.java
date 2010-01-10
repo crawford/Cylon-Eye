@@ -67,7 +67,7 @@ public class Zigbee {
 				}
 			}
 
-		} else if(command[3] == 0x00) {
+		} else if(command[3] == 0x08) {
 			//If the message is an AT command
 			
 			if(command[5] == 'I' && command[6] == 'O') {
