@@ -17,21 +17,25 @@ public class CmdProc {
 			return;
 		}
 
-		byte message[];
-		while(true) {
-			message = proc.waitFroMessage();
-
-			//Send the command to all of the zigbees
-			for(int i = 0; i < zigbees.size(); i++) {
-				zigbees.get(i).evaluate(message);
-			}
-		}
+		proc.run();
 	}
 
 	public CmdProc() throws IOException {
 		ServerSocket server = new ServerSocket(35254);
 		stream = server.accept().getInputStream();
 		server.close();
+	}
+
+	public void run() {
+		byte message[];
+		while(true) {
+			message = waitForMessage();
+
+			//Send the command to all of the zigbees
+			for(int i = 0; i < zigbees.size(); i++) {
+				zigbees.get(i).evaluate(message);
+			}
+		}
 	}
 
 	public byte[] waitForMessage() {
@@ -42,10 +46,14 @@ public class CmdProc {
 		while(true) {
 			//Read one char from the input stream
 			try {
+				System.out.println("Waiting for character");
 				stream.read(buf);
 			} catch(IOException e) {
 				System.out.println(e.getMessage());
 			}
+
+			System.out.println(buf);
+
 			//If the char is a start character, erase the buffer
 			if(buf[0] == 0x7E) {
 				messageLength = 0;
@@ -62,7 +70,7 @@ public class CmdProc {
 				length[1] = message[2];
 
 				//If the length of the message is the expected value
-				if(messageLength == Frame.toGotoAddress(length)) {
+				if((messageLength - 4) == Frame.toGotoAddress(length)) {
 					byte command[] = new byte[messageLength];
 					for(int i = 0; i < messageLength; i++) {
 						command[i] = message[i];
