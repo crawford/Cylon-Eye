@@ -46,8 +46,8 @@ public class Zigbee {
 			address[i] = command[i + 6];
 		}
 
-		//Make sure the message is addressed to this zigbee
-		if(!ZID.equals(getHex(address)))
+		//Make sure the message is addressed to this zigbee or broadcast
+		if(!ZID.equals("000000000000FFFF") && !ZID.equals(getHex(address)))
 			return;
 
 		if(command[3] == 0x00) {
