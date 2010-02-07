@@ -1,5 +1,5 @@
-#include "cylon.h"
-#include "cylerrno.h"
+#include "_cylon.h"
+#include "_cylerrno.h"
 
 #include <stdio.h>
 #include <stdlib.h>

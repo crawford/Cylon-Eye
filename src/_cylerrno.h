@@ -1,3 +1,6 @@
+#ifndef __CYLERRNO_H
+#define __CYLERRNO_H
+
 #include <glib.h>
 
 // Cylon error codes.
@@ -14,4 +17,7 @@
 extern gint cyl_errno;
 
 const gchar* cyl_strerror( const gint errcode );
+
+#endif
+
 // vim:sts=0 sw=8 ts=8 noet tw=0
