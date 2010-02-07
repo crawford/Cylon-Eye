@@ -35,7 +35,7 @@ typedef enum {
  *
  * Parameters: panel - the panel to work with
  *             frame - the frame struct from which to get the intensities
-*/
+ */
 gint cyl_setDisplay( cyl_panel_t* panel, const cyl_frame_t* const frame );
 
 /**
