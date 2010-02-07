@@ -14,3 +14,4 @@
 extern gint cyl_errno;
 
 const gchar* cyl_strerror( const gint errcode );
+// vim:ts=8 noet tw=0

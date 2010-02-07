@@ -5,7 +5,7 @@ static gchar* cyl_errbuf = NULL;
 
 G_GNUC_MALLOC
 G_GNUC_WARN_UNUSED_RESULT 
-inline const gchar* cyl_strerror( const gint errcode ) {
+const gchar* cyl_strerror( const gint errcode ) {
 	if( cyl_errbuf != NULL ) g_free(cyl_errbuf);
 
 	switch( errcode ) {
@@ -34,3 +34,4 @@ inline const gchar* cyl_strerror( const gint errcode ) {
 	
 	return cyl_errbuf;
 }
+// vim:ts=8 noet tw=0

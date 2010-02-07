@@ -215,3 +215,5 @@ gint cyl_ping( cyl_panel_t* panel ) {
 	if( G_UNLIKELY(cyl_fd == -1) ) return CYL_UNINITIALIZED;
 	cyl_packet( CYL_NOOP, NULL, panel );
 }
+
+// vim:ts=8 noet tw=0
