@@ -216,4 +216,4 @@ gint cyl_ping( cyl_panel_t* panel ) {
 	cyl_packet( CYL_NOOP, NULL, panel );
 }
 
-// vim:ts=8 noet tw=0
+// vim:sts=0 sw=8 ts=8 noet tw=0

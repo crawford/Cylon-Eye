@@ -6,6 +6,8 @@
 #define CYL_MAX_FRAMES 200
 
 typedef struct {
+
+typedef struct {
 	guint64 xbee;
 	guint8 panel;
 } cyl_panel_t;
@@ -132,4 +134,4 @@ gsize cyl_write( const guint8* const buf, const gssize count, const guint64 dest
 gsize cyl_packet( const cyl_op operation, const guint8* const buf, const cyl_panel_t* const dest );
 
 #endif
-// vim:ts=8 noet tw=0
+// vim:sts=0 sw=8 ts=8 noet tw=0

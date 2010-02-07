@@ -34,4 +34,4 @@ const gchar* cyl_strerror( const gint errcode ) {
 	
 	return cyl_errbuf;
 }
-// vim:ts=8 noet tw=0
+// vim:sts=0 sw=8 ts=8 noet tw=0
