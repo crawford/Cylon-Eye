@@ -14,7 +14,7 @@ static gint cyl_fd = -1;
 static GStaticMutex* cyl_raw_mutex;
 static GIOChannel* cyl_io;
 
-inline gint cyl_init( gint fd ) {
+gint cyl_init( gint fd ) {
 	if( G_UNLIKELY(cyl_fd != -1 ) ) return CYL_INITIALIZED;
 	cyl_fd = fd;
 	g_static_mutex_init(cyl_raw_mutex);
@@ -22,7 +22,7 @@ inline gint cyl_init( gint fd ) {
 	g_io_channel_set_encoding(cyl_io, NULL, NULL);
 }
 
-inline gint cyl_free() {
+gint cyl_free() {
 	g_static_mutex_lock(cyl_raw_mutex);
 	cyl_fd = -1;
 	g_io_channel_shutdown(cyl_io, TRUE, NULL);
@@ -30,7 +30,7 @@ inline gint cyl_free() {
 	g_static_mutex_free(cyl_raw_mutex);
 }
 
-inline static gsize cyl_raw( const guint8* const buf, const gssize count ) {
+static gsize cyl_raw( const guint8* const buf, const gssize count ) {
 	gsize written;
 	g_static_mutex_lock(cyl_raw_mutex);
 	if( G_UNLIKELY(cyl_fd == -1) ) return CYL_UNINITIALIZED;
@@ -40,7 +40,7 @@ inline static gsize cyl_raw( const guint8* const buf, const gssize count ) {
 }
 
 G_GNUC_PURE
-inline static const guint8 cyl_checksum( const guint8* const buf, const gssize count ) {
+static const guint8 cyl_checksum( const guint8* const buf, const gssize count ) {
 	guint8 checksum;
 	for( gint i = 0; i < count; i++ ) {
 		checksum += buf[i];
@@ -49,7 +49,7 @@ inline static const guint8 cyl_checksum( const guint8* const buf, const gssize c
 	return checksum;
 }
 
-inline gsize cyl_write( const guint8* const buf, const gssize count, const guint64 dest ) {
+gsize cyl_write( const guint8* const buf, const gssize count, const guint64 dest ) {
 	static const guint8 IDENTIFIER = 0x00,
 			    FLAGS = 0x01,
 			    FRAME_ID = 0x00;
@@ -69,7 +69,7 @@ inline gsize cyl_write( const guint8* const buf, const gssize count, const guint
 	return cyl_raw(data, data_size);
 }
 
-inline gsize cyl_select_panel( const cyl_panel_t* const panel ) {
+gsize cyl_select_panel( const cyl_panel_t* const panel ) {
 	static const guint8 IDENTIFIER = 0x08,
 			    FRAME_ID = 0x00;
 	guint8 data[9];
@@ -87,7 +87,7 @@ inline gsize cyl_select_panel( const cyl_panel_t* const panel ) {
 	return cyl_raw(data, 9);
 }
 
-inline gsize cyl_packet( const cyl_op operation, const guint8* const buf, const cyl_panel_t* const dest ) {
+gsize cyl_packet( const cyl_op operation, const guint8* const buf, const cyl_panel_t* const dest ) {
 	guint8 packet[10];
 	switch( operation ) {
 		case CYL_SET_FRAME:
@@ -154,7 +154,7 @@ inline gsize cyl_packet( const cyl_op operation, const guint8* const buf, const 
 	}
 }
 
-inline gint cyl_flush() {
+gint cyl_flush() {
 	g_static_mutex_lock(cyl_raw_mutex);
 	if( G_UNLIKELY(cyl_fd == -1) ) return CYL_UNINITIALIZED;
 	g_io_channel_flush(cyl_io, NULL);
@@ -162,7 +162,7 @@ inline gint cyl_flush() {
 }
 
 G_GNUC_PURE
-inline static void cyl_pack( guint8* dest, const guint8* const src, guint count ) {
+static void cyl_pack( guint8* dest, const guint8* const src, guint count ) {
 	gint counter = 0;
 	for( int i = 0; G_LIKELY(i < count); i++ ) {
 		dest[counter] = ( src[i] & 0x0F ) << 4;
@@ -171,14 +171,14 @@ inline static void cyl_pack( guint8* dest, const guint8* const src, guint count 
 	}
 }
 
-inline gint cyl_setDisplay( cyl_panel_t* panel, const cyl_frame_t* const frame ) {
+gint cyl_setDisplay( cyl_panel_t* panel, const cyl_frame_t* const frame ) {
 	if( G_UNLIKELY(cyl_fd == -1) ) return CYL_UNINITIALIZED;
 	guint8 packet[8];
 	cyl_pack(packet, frame->intensity, 16);
 	cyl_packet( CYL_SET_FRAME, packet, panel );
 }
 
-inline gint cyl_setAnimation( cyl_panel_t* panel, const cyl_frame_t const frames[], const guint num_frames, const guint16 speed ) {
+gint cyl_setAnimation( cyl_panel_t* panel, const cyl_frame_t const frames[], const guint num_frames, const guint16 speed ) {
 	if( G_UNLIKELY(cyl_fd == -1) ) return CYL_UNINITIALIZED;
 	if( G_UNLIKELY(num_frames > CYL_MAX_FRAMES) ) return CYL_OVERFLOW;
 	guint8 fspeed[2];
@@ -196,22 +196,22 @@ inline gint cyl_setAnimation( cyl_panel_t* panel, const cyl_frame_t const frames
 	}
 }
 
-inline gint cyl_start( cyl_panel_t* panel, const guint8 repeat_count ) {
+gint cyl_start( cyl_panel_t* panel, const guint8 repeat_count ) {
 	if( G_UNLIKELY(cyl_fd == -1) ) return CYL_UNINITIALIZED;
 	cyl_packet( CYL_START, &repeat_count, panel );
 }
 
-inline gint cyl_pause( cyl_panel_t* panel ) {
+gint cyl_pause( cyl_panel_t* panel ) {
 	if( G_UNLIKELY(cyl_fd == -1) ) return CYL_UNINITIALIZED;
 	cyl_packet( CYL_PAUSE, NULL, panel );
 }
 
-inline gint cyl_reset( cyl_panel_t* panel ) {
+gint cyl_reset( cyl_panel_t* panel ) {
 	if( G_UNLIKELY(cyl_fd == -1) ) return CYL_UNINITIALIZED;
 	cyl_packet( CYL_RESET, NULL, panel );
 }
 
-inline gint cyl_ping( cyl_panel_t* panel ) {
+gint cyl_ping( cyl_panel_t* panel ) {
 	if( G_UNLIKELY(cyl_fd == -1) ) return CYL_UNINITIALIZED;
 	cyl_packet( CYL_NOOP, NULL, panel );
 }
