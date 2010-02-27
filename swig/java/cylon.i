@@ -1,7 +1,6 @@
 %module Cylon
 %{
 #include "cylon.h"
-#include "cylerrno.h"
 %}
 
 %include <enums.swg>
@@ -13,4 +12,3 @@
 %rename (Cylon) cylon;
 
 %include "cylon.h"
-%include "cylerrno.h"
