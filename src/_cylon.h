@@ -2,10 +2,12 @@
 #define __CYLON_H
 
 #include <glib.h>
-
+#include <libxml/parser.h>
+#include <libxml/tree.h>
 #include "cylon.h"
 
 #define CYL_MAX_FRAMES 200
+
 
 typedef struct {
 	guint64 xbee;

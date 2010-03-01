@@ -14,6 +14,34 @@ static gint cyl_fd = -1;
 static GStaticMutex* cyl_raw_mutex;
 static GIOChannel* cyl_io;
 
+cylon_eye_t* cylon_eye_init( char* filename ) {
+
+	xmlDoc* doc = NULL;
+	xmlNode* root_element = NULL;
+
+	if( G_UNLIKELY( filename == NULL )) {
+		// report error
+		return NULL;
+	}
+	
+	/*
+	 * this initialize the library and check potential ABI mismatches
+	 * between the version it was compiled for and the actual shared
+	 * library used.
+	 */
+	LIBXML_TEST_VERSION;
+
+	doc = xmlReadFile(filename, NULL, 0);
+	if( G_UNLIKELY( doc == NULL )) {
+		//report error 
+		return NULL
+	}
+
+	root_element = xmlDocGetRootElement(doc);
+
+
+}
+
 gint cyl_init( gint fd ) {
 	if( G_UNLIKELY(cyl_fd != -1 ) ) return CYL_INITIALIZED;
 	cyl_fd = fd;
