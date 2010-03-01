@@ -1,6 +1,7 @@
 #ifndef __CYLERRNO_H
 #define __CYLERRNO_H
 
+#include "cylerrno.h"
 #include <glib.h>
 
 // Cylon error codes.
