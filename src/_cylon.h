@@ -7,6 +7,20 @@
 #include "cylon.h"
 
 #define CYL_MAX_FRAMES 200
+#define CYL_START_DELIM 0x7E
+
+#define CYL_ERROR cyl_error_quark()
+
+typedef enum {
+	CYL_ERROR_UNINITIALIZED,
+	CYL_ERROR_INITIALIZED,
+	CYL_ERROR_OVERFLOW
+} CYLError;
+
+typedef enum {
+	CYL_STATUS_NORMAL,
+	CYL_STATUS_ERROR
+} CYLStatus;
 
 typedef struct {
 	guint8 intensity[16];
@@ -27,6 +41,11 @@ typedef enum {
 } cyl_op;
 
 /**
+ * Create a quark uniquely identifying the error domain of the cylon eye
+ */
+GQuark cyl_error_quark();
+
+/**
  * cyl_setDisplay
  *
  * Description: Sets the given panel based on the info from the given frame
@@ -34,7 +53,7 @@ typedef enum {
  * Parameters: panel - the panel to work with
  *             frame - the frame struct from which to get the intensities
  */
-gint cyl_setDisplay( cyl_panel_t* panel, const cyl_frame_t* const frame );
+CYLStatus cyl_set_display( cyl_panel_t* panel, const cyl_frame_t* const frame, GError **error );
 
 /**
  * cyl_setAmimation
@@ -46,7 +65,7 @@ gint cyl_setDisplay( cyl_panel_t* panel, const cyl_frame_t* const frame );
  *              num_frames - the number of frames
  *              speed - the speed of the animation as a 16 bit int
  */
-gint cyl_setAnimation( cyl_panel_t* panel, const cyl_frame_t const frames[], const guint num_frames, const guint16 speed );
+CYLStatus cyl_set_animation( cyl_panel_t* panel, const cyl_frame_t const frames[], const guint num_frames, const guint16 speed, GError **error );
 
 /**
  * cyl_start
@@ -56,7 +75,7 @@ gint cyl_setAnimation( cyl_panel_t* panel, const cyl_frame_t const frames[], con
  * Parameters: panel - the panel to talk to
  *             repeat_count - the number of times it should repeat
  */
-gint cyl_start( cyl_panel_t* panel, const guint8 repeat_count );
+CYLStatus cyl_start( cyl_panel_t* panel, const guint8 repeat_count, GError **error );
 
 /**
  * cyl_pause
@@ -65,21 +84,21 @@ gint cyl_start( cyl_panel_t* panel, const guint8 repeat_count );
  *
  * Parameters: panel - the panel whoes animation is to be paused
  */
-gint cyl_pause( cyl_panel_t* panel );
+CYLStatus cyl_pause( cyl_panel_t* panel, GError **error );
 
 /**
  * cyl_reset
  *
  * Description: resets the given panel with respect to animations
  */
-gint cyl_reset( cyl_panel_t* panel );
+CYLStatus cyl_reset( cyl_panel_t* panel, GError **error );
 
 /**
  * cyl_ping
  *
  * Description: Sends a NOOP ( "N" ) to the given panel
  */
-gint cyl_ping( cyl_panel_t* panel );
+CYLStatus cyl_ping( cyl_panel_t* panel, GError **error );
 
 /**
  * cyl_init
@@ -88,35 +107,35 @@ gint cyl_ping( cyl_panel_t* panel );
  *
  * Parameters: fd - a file description struct to be set up
  */
-gint cyl_init( gint fd );
+CYLStatus cyl_init( gint fd, GError **error );
 
 /**
  * cyl_free
  *
  * Description: Closes the I/O channel with this api
  */
-gint cyl_free();
+CYLStatus cyl_free( GError **error );
 
 /**
  * cyl_flush
  * 
  * Description: Ensures that all data has been flushed from any buffers
  */
-gint cyl_flush();
+CYLStatus cyl_flush( GError **error );
 
 /**
  * cyl_select_panel
  *
  * Description: Select which panel is going to be written to
  */
-gsize cyl_select_panel( const cyl_panel_t* const panel );
+CYLStatus cyl_select_panel( const cyl_panel_t* const panel, GError **error );
 
 /**
  * cyl_write
  *
  * Description: writes buf, which is count bits long, to xbee referenced by dest 
  */
-gsize cyl_write( const guint8* const buf, const gssize count, const guint64 dest );
+CYLStatus cyl_write( const guint8* const buf, const gssize count, const guint64 dest, gsize *written, GError **error );
 
 /**
  * cyl_packet
@@ -127,7 +146,7 @@ gsize cyl_write( const guint8* const buf, const gssize count, const guint64 dest
  *             buf - an array of ints
  *             dest - the panel to send this packet to
  */
-gsize cyl_packet( const cyl_op operation, const guint8* const buf, const cyl_panel_t* const dest );
+CYLStatus cyl_packet( const cyl_op operation, const guint8* const buf, const cyl_panel_t* const dest, GError **error );
 
 #endif
 

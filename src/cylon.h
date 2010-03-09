@@ -55,6 +55,14 @@ guint8 getValue( cylon_eye_t* self, guint8 x, guint8 y);
  */
 guint8 setValue( guint8 x, guint8 y, guint8 newValue );
 
+/**
+ * pushBuffer
+ *
+ * Description: Updates the panels to match the state of the buffer
+ */
+guint8 pushBuffer( ) {
+
+}
 #endif
 
 // vim:sts=0 sw=8 ts=8 noet tw=0
