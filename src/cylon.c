@@ -6,42 +6,52 @@
 #include <stdarg.h>
 #include <string.h>
 
-#include <glib/gprintf.h>
-
 #define START_DELIM 0x7E
 
 static gint cyl_fd = -1;
 static GStaticMutex* cyl_raw_mutex;
 static GIOChannel* cyl_io;
+static char* XML_PANEL_STR = "panel";
+
 
 cylon_eye_t* cylon_eye_init( char* filename ) {
 
 	xmlDoc* doc = NULL;
 	xmlNode* root_element = NULL;
+	guint8  numPanels = 0;
 
-	if( G_UNLIKELY( filename == NULL )) {
-		// report error
-		return NULL;
-	}
-	
-	/*
-	 * this initialize the library and check potential ABI mismatches
-	 * between the version it was compiled for and the actual shared
-	 * library used.
-	 */
-	LIBXML_TEST_VERSION;
+	if( G_UNLIKELY(filename == NULL ) ) return NULL;
+
+	// Initialize the xml library and chek potential ABI mismatches
+	LIBXML_TEST_VERSION
 
 	doc = xmlReadFile(filename, NULL, 0);
-	if( G_UNLIKELY( doc == NULL )) {
-		//report error 
-		return NULL
-	}
+
+	if( G_UNLIKELY(doc == NULL) ) return NULL;
 
 	root_element = xmlDocGetRootElement(doc);
+	
+	for( xmlNode* cur = root_element; cur != NULL; cur = cur->next) {
+		xmlNode* children =  cur->children;
+		while( children != NULL ) {
+			printf( "%d:%s: %s\n", numPanels, children->name, children->content );
+			numPanels++;
+		}
+	}
+	// TODO
+	printf( "AND WERE DONE\n" );
+	return NULL;
+}	
 
+
+guint8 getValue( cylon_eye_t* self, guint8 x, guint8 y) {
+	guint32 realIndex = x * (*self).width + y;
+	guint32 panelIndex = realIndex / 16;
+	cyl_panel_t* found = *(*(*self).screen).panels[ panelIndex ];
 
 }
 
+// Beginning of lower level API
 gint cyl_init( gint fd ) {
 	if( G_UNLIKELY(cyl_fd != -1 ) ) return CYL_INITIALIZED;
 	cyl_fd = fd;

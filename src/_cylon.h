@@ -8,12 +8,6 @@
 
 #define CYL_MAX_FRAMES 200
 
-
-typedef struct {
-	guint64 xbee;
-	guint8 panel;
-} cyl_panel_t;
-
 typedef struct {
 	guint8 intensity[16];
 	guint16 duration;
