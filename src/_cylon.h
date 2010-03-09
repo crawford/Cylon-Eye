@@ -11,16 +11,6 @@
 
 #define CYL_ERROR cyl_error_quark()
 
-typedef enum {
-	CYL_ERROR_UNINITIALIZED,
-	CYL_ERROR_INITIALIZED,
-	CYL_ERROR_OVERFLOW
-} CYLError;
-
-typedef enum {
-	CYL_STATUS_NORMAL,
-	CYL_STATUS_ERROR
-} CYLStatus;
 
 typedef struct {
 	guint8 intensity[16];

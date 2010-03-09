@@ -2,23 +2,35 @@
 #define _CYLON_H
 #include <glib.h>
 
+typedef enum {
+	CYL_ERROR_UNINITIALIZED,
+	CYL_ERROR_INITIALIZED,
+	CYL_ERROR_OVERFLOW,
+	CYL_ERROR_BADPIXEL
+} CYLError;
+
+typedef enum {
+	CYL_STATUS_NORMAL,
+	CYL_STATUS_ERROR
+} CYLStatus;
+
 typedef struct {
 	guint64 xbee;
 	guint8 panel;
 } cyl_panel_t;
 
 typedef struct {
-	cyl_panel_t*** panels;
+	cyl_panel_t** panels;
 	guint8 num_columns;
 	guint8 num_rows;
 } cyl_screen_t;
 
 typedef struct {
-	cyl_screen_t* screen;
-	guint32** buffer;
+	cyl_screen_t screen;
+	guint32*** buffer;
 	guint16 width;
 	guint16 height;
-} cylon_eye_t;
+} cyl_eye_t;
 
 
 /**
@@ -30,7 +42,7 @@ typedef struct {
  *
  * Return: A cylonEye object
  */
-cylon_eye_t* cylon_eye_init( char* filename );
+CYLStatus cylon_eye_init( char* filename, cyl_eye_t* cEye, GError** error );
 
 /**
  * getValue
@@ -41,7 +53,7 @@ cylon_eye_t* cylon_eye_init( char* filename );
  *	      y - the y coordinate
  * Return: the value( intensity ) of the pixel at that coordinate
  */
-guint8 getValue( cylon_eye_t* self, guint8 x, guint8 y);
+CYLStatus getValue( cyl_eye_t* self, guint8 value, guint8 x, guint8 y, GError** error );
 
 /**
  * setValue

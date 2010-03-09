@@ -11,40 +11,6 @@ static GStaticMutex* cyl_raw_mutex;
 static GIOChannel* cyl_io = NULL;
 
 
-// TODO: make this GError'd
-cyl_eye_t* cylon_eye_init( char* filename ) {
-
-	xmlDoc* doc = NULL;
-	xmlNode* root_element = NULL;
-	guint8  numPanels = 0;
-
-	if( G_UNLIKELY(filename == NULL ) ) return NULL;
-
-	// Initialize the xml library and chek potential ABI mismatches
-	LIBXML_TEST_VERSION
-
-	doc = xmlReadFile(filename, NULL, 0);
-
-	if( G_UNLIKELY(doc == NULL) ) return NULL;
-
-	root_element = xmlDocGetRootElement(doc);
-	
-	for( xmlNode* cur = root_element; cur != NULL; cur = cur->next) {
-		xmlNode* children =  cur->children;
-		while( children != NULL ) {
-			printf( "%d:%s: %s\n", numPanels, children->name, children->content );
-			numPanels++;
-		}
-	}
-	// TODO
-	printf( "AND WERE DONE\n" );
-	return NULL;
-}	
-
-// TODO: make this GError'd
-getValue( cyl_eye_t* self, guint8 x, guint8 y) {
-
-}
 
 // Beginning of lower level API
 
@@ -63,6 +29,8 @@ static void cyl_set_error_literal( GError **error, CYLError error_code ) {
 		case CYL_ERROR_OVERFLOW:
 			g_set_error_literal(error, CYL_ERROR, error_code, "Too many frames");
 			break;
+		case CYL_ERROR_BADPIXEL:
+			g_set_error_literal(error, CYL_ERROR, error_code, "Invalid (x,y) for panel configuration");
 		default:
 			g_error("Unknown error code passed to cyl_set_error_literal");
 	}
@@ -313,6 +281,44 @@ CYLStatus cyl_reset( cyl_panel_t* panel, GError **error ) {
 CYLStatus cyl_ping( cyl_panel_t* panel, GError **error ) {
 	if( G_UNLIKELY(cyl_expect_init(error) == CYL_STATUS_ERROR) ) return CYL_STATUS_ERROR;
 	return cyl_packet(CYL_NOOP, NULL, panel, error);
+}
+
+
+// TODO: make this GError'd
+CYLStatus cylon_eye_init( char* filename, cyl_eye_t* cEye, GError** error ) {
+	xmlDoc* doc = NULL;
+	xmlNode* root_element = NULL;
+	guint8  numPanels = 0;
+
+	if( G_UNLIKELY(filename == NULL ) ) return NULL;
+
+	// Initialize the xml library and chek potential ABI mismatches
+	LIBXML_TEST_VERSION
+
+	doc = xmlReadFile(filename, NULL, 0);
+
+	if( G_UNLIKELY(doc == NULL) ) return NULL;
+
+	root_element = xmlDocGetRootElement(doc);
+	
+	for( xmlNode* cur = root_element; cur != NULL; cur = cur->next) {
+		xmlNode* children =  cur->children;
+		while( children != NULL ) {
+			printf( "%d:%s: %s\n", numPanels, children->name, children->content );
+			numPanels++;
+		}
+	}
+
+	return NULL;
+}	
+
+CYLStatus getValue( cyl_eye_t* self, guint8 value, guint8 x, guint8 y, GError** error ) {
+	if( self->buffer[x][y] == NULL ){
+		cyl_set_error_literal(error, CYL_ERROR_BADPIXEL);
+		return CYL_STATUS_ERROR;	
+	} 
+	value = *self->buffer[x][y];
+	return CYL_STATUS_NORMAL;
 }
 
 // vim:sts=0 sw=4 ts=4 noet tw=0
