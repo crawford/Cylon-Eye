@@ -36,7 +36,7 @@ typedef enum {
 GQuark cyl_error_quark();
 
 /**
- * cyl_setDisplay
+ * cyl_set_display
  *
  * Description: Sets the given panel based on the info from the given frame
  *
@@ -46,7 +46,7 @@ GQuark cyl_error_quark();
 CYLStatus cyl_set_display( cyl_panel_t* panel, const cyl_frame_t* const frame, GError **error );
 
 /**
- * cyl_setAmimation
+ * cyl_set_amimation
  *
  * Description: Transmits a given animation to a given panel
  *
@@ -104,7 +104,7 @@ CYLStatus cyl_init( gint fd, GError **error );
  *
  * Description: Closes the I/O channel with this api
  */
-CYLStatus cyl_free( GError **error );
+CYLStatus cyl_free( cyl_eye_t* cEye, GError **error );
 
 /**
  * cyl_flush

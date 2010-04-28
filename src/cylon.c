@@ -5,8 +5,6 @@
 #include <stdarg.h>
 #include <string.h>
 
-#include <glib/gprintf.h>
-
 static GStaticMutex* cyl_raw_mutex;
 static GIOChannel* cyl_io = NULL;
 
@@ -31,6 +29,9 @@ static void cyl_set_error_literal( GError **error, CYLError error_code ) {
 			break;
 		case CYL_ERROR_BADPIXEL:
 			g_set_error_literal(error, CYL_ERROR, error_code, "Invalid (x,y) for panel configuration");
+			break;
+		case CYL_ERROR_XMLERROR:
+			g_set_error_literal(error, CYL_ERROR, error_code, "Error opening or reading configuration xml file");
 		default:
 			g_error("Unknown error code passed to cyl_set_error_literal");
 	}
@@ -54,7 +55,7 @@ CYLStatus cyl_init( gint fd, GError **error ) {
 	return CYL_STATUS_NORMAL;
 }
 
-CYLStatus cyl_free( GError **error ) {
+CYLStatus cyl_free( cyl_eye_t* cEye, GError **error ) {
 	g_static_mutex_lock(cyl_raw_mutex);
 	if( G_UNLIKELY(g_io_channel_shutdown(cyl_io, TRUE, error) != G_IO_STATUS_NORMAL) ) {
 		g_static_mutex_unlock(cyl_raw_mutex);
@@ -63,6 +64,12 @@ CYLStatus cyl_free( GError **error ) {
 	cyl_io = NULL;
 	g_static_mutex_unlock(cyl_raw_mutex);
 	g_static_mutex_free(cyl_raw_mutex);
+	if( G_UNLIKELY(cEye) ) {
+		free(cEye);
+	} else {
+		cyl_set_error_literal( error, CYL_ERROR_UNINITIALIZED );
+		return CYL_STATUS_ERROR;
+	}
 	return CYL_STATUS_NORMAL;
 }
 
@@ -94,8 +101,8 @@ static const guint8 cyl_checksum( const guint8* const buf, const gssize count ) 
 
 CYLStatus cyl_write( const guint8* const buf, const gssize count, const guint64 dest, gsize *written, GError **error ) {
 	static const guint8 IDENTIFIER = 0x00,
-			    FLAGS = 0x01,
-			    FRAME_ID = 0x00;
+				 FLAGS = 0x01,
+				 FRAME_ID = 0x00;
 	gint data_size = 15 + count;
 	guint8 data[data_size];
 	data[0] = CYL_START_DELIM;
@@ -119,7 +126,7 @@ CYLStatus cyl_write( const guint8* const buf, const gssize count, const guint64 
 
 CYLStatus cyl_select_panel( const cyl_panel_t* const panel, GError **error ) {
 	static const guint8 IDENTIFIER = 0x08,
-			    FRAME_ID = 0x00;
+				 FRAME_ID = 0x00;
 	guint8 data[9];
 	data[0] = CYL_START_DELIM;
 	guint16 length = 5;
@@ -284,40 +291,126 @@ CYLStatus cyl_ping( cyl_panel_t* panel, GError **error ) {
 }
 
 
-// TODO: make this GError'd
 CYLStatus cylon_eye_init( char* filename, cyl_eye_t* cEye, GError** error ) {
 	xmlDoc* doc = NULL;
 	xmlNode* root_element = NULL;
-	guint8  numPanels = 0;
+	guint8  maxCols = 0;
+	guint8  maxRows= 0;
 
-	if( G_UNLIKELY(filename == NULL ) ) return NULL;
 
-	// Initialize the xml library and chek potential ABI mismatches
+	if( G_UNLIKELY(filename == NULL ) ) return CYL_STATUS_ERROR;
+
+	// Initialize the xml library and check for potential ABI mismatches
 	LIBXML_TEST_VERSION
 
 	doc = xmlReadFile(filename, NULL, 0);
 
-	if( G_UNLIKELY(doc == NULL) ) return NULL;
+	if( G_UNLIKELY(doc == NULL) ) {
+		cyl_set_error_literal(error, CYL_ERROR_XMLERROR);
+		return CYL_STATUS_ERROR;
+	}
 
 	root_element = xmlDocGetRootElement(doc);
-	
-	for( xmlNode* cur = root_element; cur != NULL; cur = cur->next) {
-		xmlNode* children =  cur->children;
-		while( children != NULL ) {
-			printf( "%d:%s: %s\n", numPanels, children->name, children->content );
-			numPanels++;
+
+	for( xmlNode* cur = root_element->children; cur != NULL; cur = cur->next) {
+		xmlNode* subCur = cur->children;
+		while( subCur != NULL ) {
+			if( !strcmp( subCur->name,"col") ) { 
+				printf( "Parsed value for col: %s\n", xmlNodeGetContent(subCur) );
+				if( atoi(xmlNodeGetContent(subCur)) > maxCols ) maxCols = atoi(xmlNodeGetContent(subCur));
+			} else if( !strcmp( subCur->name,"row") ) {
+				printf( "Parsed value for row: %s\n", xmlNodeGetContent(subCur) );
+				if( atoi(xmlNodeGetContent(subCur)) > maxRows ) maxRows = atoi(xmlNodeGetContent(subCur));
+			}
+			subCur = subCur->next;
 		}
 	}
 
-	return NULL;
+	////////  TESTING PRINTLN ///////
+	printf( "maxCol: %d\nmaxRows: %d\n", maxCols, maxRows );
+
+	cEye->screen.panels = malloc(sizeof(cyl_panel_t*) * maxCols);
+	cEye->width = (maxCols + 1) * CYPANEL_WIDTH;
+	cEye->height = (maxRows + 1 );
+
+	for( gint i = 0; G_UNLIKELY(i < maxCols); i++) {
+		for( int j = 0; G_UNLIKELY(j < maxRows); j++) {
+			cEye->screen.panels[i][j] = malloc( sizeof(cyl_panel_t) * maxRows);
+			cEye->screen.panels[i][j]->intensity = malloc( sizeof(guint32) * 16 );
+			memset( cEye->screen.panels[i][j]->intensity, 0, 16 );
+		}
+	}
+
+	for( xmlNode* cur = root_element->children; G_UNLIKELY(cur != NULL); cur = cur->next){
+		xmlNode* children =  cur->children;
+		guint16 newX=0;
+		guint16 newY=0;
+		if( children && G_LIKELY(!strcmp(children->name,"panel" )) ){
+			children = children->children;
+			cyl_panel_t* newPanel = malloc( sizeof(cyl_panel_t) );
+			while( children != NULL ) {
+				if( !strcmp(children->name,"xid") ){
+					newPanel->xbee = atoi(xmlNodeGetContent(children));
+				} else if( !strcmp(children->name,"pid") ) {					
+					newPanel->panel = atoi(xmlNodeGetContent(children));
+				} else if( !strcmp(children->name,"col") ) {
+					newX = atoi(xmlNodeGetContent(children));
+				} else if( !strcmp(children->name,"row") ) {
+					newY = atoi(xmlNodeGetContent(children));
+				} 
+			}
+			cEye->screen.panels[newX][newY] = newPanel;
+		}
+	}
+
+	return CYL_STATUS_NORMAL;
 }	
 
 CYLStatus getValue( cyl_eye_t* self, guint8 value, guint8 x, guint8 y, GError** error ) {
-	if( self->buffer[x][y] == NULL ){
+	if( G_UNLIKELY(self->screen.panels[x][y/16] == NULL) ){
 		cyl_set_error_literal(error, CYL_ERROR_BADPIXEL);
 		return CYL_STATUS_ERROR;	
 	} 
-	value = *self->buffer[x][y];
+	value = *self->screen.panels[x][y/16]->intensity[y%16];
+	return CYL_STATUS_NORMAL;
+}
+
+CYLStatus setValue( cyl_eye_t* self, guint8 x, guint8 y, guint8 newValue, GError** error) {
+	if( self->screen.panels[x][y/16] == NULL ) {
+		cyl_set_error_literal(error, CYL_ERROR_BADPIXEL);
+		return CYL_STATUS_ERROR;
+	}
+	/// determin panel corresponding to given (x,y) ///
+	guint8 panelY = y;			
+	guint8 panelX = x / 16;
+
+	// and mark it as needing updating.
+	self->screen.panels[x][y]->dirty = 1;
+
+	*(self->screen.panels[x][y/16]->intensity[y%16]) = newValue;
+	return CYL_STATUS_NORMAL;
+}
+
+CYLStatus pushBuffer( cyl_eye_t* self, GError** error ) {
+	for( guint8 x = 0; G_UNLIKELY(x < self->screen.num_columns); x++ ){
+		for( guint8 y = 0; G_UNLIKELY(y < self->screen.num_rows); y++ ){
+			if( self->screen.panels[x][y]->dirty ) {
+				// build the frame for cyl_set_display
+				cyl_frame_t newValues;
+				memcpy( newValues.intensity, *(self->screen.panels[x][y]->intensity), 16);
+				newValues.duration = 0; // What duration should I have here?
+				// send the new frame data to the display
+				CYLStatus retVal = cyl_set_display( self->screen.panels[x][y], &newValues, error);
+
+				// check error and break/return if needed
+				if( G_UNLIKELY(retVal = CYL_STATUS_ERROR) ){
+					return CYL_STATUS_ERROR;
+				} else {
+					self->screen.panels[x][y]->dirty = 0;
+				}
+			}
+		}
+	}
 	return CYL_STATUS_NORMAL;
 }
 
