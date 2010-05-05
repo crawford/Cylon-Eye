@@ -46,7 +46,7 @@ typedef struct {
  *
  * Return: A cylonEye object
  */
-CYLStatus cylon_eye_init( char* filename, cyl_eye_t* cEye, GError** error );
+CYLStatus cylon_eye_init( char* filename, cyl_eye_t* cEye, int fd, GError** error );
 
 /**
  * getValue

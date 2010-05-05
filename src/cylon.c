@@ -291,7 +291,7 @@ CYLStatus cyl_ping( cyl_panel_t* panel, GError **error ) {
 }
 
 
-CYLStatus cylon_eye_init( char* filename, cyl_eye_t* cEye, GError** error ) {
+CYLStatus cylon_eye_init( char* filename, cyl_eye_t* cEye, int fd, GError** error ) {
 	xmlDoc* doc = NULL;
 	xmlNode* root_element = NULL;
 	guint8  maxCols = 0;
@@ -362,8 +362,7 @@ CYLStatus cylon_eye_init( char* filename, cyl_eye_t* cEye, GError** error ) {
 			cEye->screen.panels[newX][newY] = newPanel;
 		}
 	}
-
-	return CYL_STATUS_NORMAL;
+	return cyl_init( fd, error );
 }	
 
 CYLStatus getValue( cyl_eye_t* self, guint8 value, guint8 x, guint8 y, GError** error ) {
