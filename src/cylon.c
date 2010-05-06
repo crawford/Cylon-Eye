@@ -31,7 +31,8 @@ static void cyl_set_error_literal( GError **error, CYLError error_code ) {
 			g_set_error_literal(error, CYL_ERROR, error_code, "Invalid (x,y) for panel configuration");
 			break;
 		case CYL_ERROR_XMLERROR:
-			g_set_error_literal(error, CYL_ERROR, error_code, "Error opening or reading configuration xml file");
+			g_set_error_literal(error, CYL_ERROR, error_code, 
+					"Error opening or reading configuration xml file");
 		default:
 			g_error("Unknown error code passed to cyl_set_error_literal");
 	}
