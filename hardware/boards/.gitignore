@@ -1,0 +1,14 @@
+*.b#*
+*.s#*
+*.$$$
+*.cmp
+*.drd
+*.dri
+*.drl
+*.gpi
+*.plc
+*.sol
+*.stc
+*.sts
+*.whl
+*.epf
