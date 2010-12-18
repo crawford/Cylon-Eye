@@ -27,6 +27,15 @@ volatile unsigned char lightInt[LIGHTCOUNT];
 //Count for the intensities of lights
 unsigned int lCount;
 
+//Status of the System Light
+unsigned char sysLight;
+//Status of the Aux. Light
+unsigned char auxLight;
+//Current error code
+unsigned char sysErrorCode;
+//Error code display counter
+unsigned char errDisCount;
+
 //Frames for our animation
 cFrame aniFrames[ANISIZE];
 //The current position we are in our animation
@@ -274,11 +283,12 @@ void _ISR _T1Interrupt (void)
 	
 	PORTB = newVal;
 	
-	unsigned int aVal = (~(LIGHT15 + LIGHT16)) & PORTA; //Set up the last two lights
+	//unsigned int aVal = (~(LIGHT15 + LIGHT16)) & PORTA; //Set up the last two lights
+	unsigned int aVal = PORTA; //Set up the last two lights
 	if (newVal & 0x4000)
-		aVal += LIGHT15;
+		aVal |= LIGHT15;
 	if (newVal & 0x8000)
-		aVal += LIGHT16;
+		aVal |= LIGHT16;
 	PORTA = aVal;
 	
 	_T1IF = 0;
@@ -326,8 +336,31 @@ void _ISR _T2Interrupt (void)
 //System light timer interrupt
 void _ISR _T3Interrupt (void)
 {
-	PORTA ^= SYSLIGHT;
-	
+	unsigned int tPort = PORTA;
+
+	// Add a pause after blinking the error
+	if (errDisCount == 0)
+	{
+		errDisCount = sysErrorCode*2;
+	}
+	else
+	{
+		sysLight = ~sysLight;
+		errDisCount--;
+	}
+
+	//Turn on/off the system light
+	if (sysLight)
+	{
+		tPort |= SYSLIGHT;
+	}
+	else
+	{
+		tPort &= ~SYSLIGHT;
+	}
+
+	PORTA = tPort;
+
 	_T3IF = 0;
 } // _T3Interrupt
 
@@ -401,14 +434,16 @@ void processMsg()
 			aniTickPeriod = temp;
 			break;
 		case 'L': //Turn the aux light on or off
+			temp = PORTA;
 			if(rxBuff[nextRxRead()])
 			{
-				PORTA |= AUXLIGHT;
+				temp |= AUXLIGHT;
 			}
 			else
 			{
-				PORTA &= ~AUXLIGHT;
+				temp &= ~AUXLIGHT;
 			}
+			PORTA = temp;
 			break;
 		default: //Invalid command
 			notify(1);
@@ -492,7 +527,7 @@ int main()
 	
 	//Sys light timer
 	T3CON = 0x00;
-	TMR3 = 0x00;
+	TMR3 = 0x0000;
 	PR3 = 0x1000; //Timer counts
 	_T3IP = 0x01;
 	T3CONbits.TCKPS1 = 1; //Set timer prescaler
@@ -522,11 +557,13 @@ int main()
 		lightInt[2*i] = i;
 		lightInt[2*i + 1] = i;
 	}
-	
-	//Clear the output
-	PORTB = 0x0000;
-	PORTA = 0x0000;
-	
+
+	//Notification setup
+	auxLight = 0;
+	sysLight = 0;
+	sysErrorCode = 2;
+	errDisCount = 0;
+
 	//Main processig loop
 	while(1)
 	{
@@ -549,7 +586,7 @@ int main()
 					{
 						_T3IE = 0;
 						T3CONbits.TON = 0;
-						PORTA |= SYSLIGHT;
+						//PORTA |= SYSLIGHT;
 					}
 				}
 				else //No newline, bad message

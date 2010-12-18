@@ -16,9 +16,9 @@
 //Size of our animation frame buffer
 #define ANISIZE 200
 //Bit on PORTA where the system light is located
-#define SYSLIGHT 0x0800
+#define SYSLIGHT 0x0004
 //Bit on PORTA where the aux light is located
-#define AUXLIGHT 0x0400
+#define AUXLIGHT 0x0008
 //Bit on PORTA where light 15 is located
 #define LIGHT15 0x0004
 //Bit on PORTA where light 16 is located
