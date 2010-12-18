@@ -283,13 +283,12 @@ void _ISR _T1Interrupt (void)
 	
 	PORTB = newVal;
 	
-	//unsigned int aVal = (~(LIGHT15 + LIGHT16)) & PORTA; //Set up the last two lights
-	unsigned int aVal = PORTA; //Set up the last two lights
+	unsigned int aVal = (~(LIGHT15 | LIGHT16)) & PORTB; //Set up the last two lights
 	if (newVal & 0x4000)
 		aVal |= LIGHT15;
 	if (newVal & 0x8000)
 		aVal |= LIGHT16;
-	PORTA = aVal;
+	PORTB = aVal;
 	
 	_T1IF = 0;
 } // _T1Interrupt

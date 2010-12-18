@@ -20,9 +20,9 @@
 //Bit on PORTA where the aux light is located
 #define AUXLIGHT 0x0008
 //Bit on PORTA where light 15 is located
-#define LIGHT15 0x0004
+#define LIGHT15 0x4000
 //Bit on PORTA where light 16 is located
-#define LIGHT16 0x0008
+#define LIGHT16 0x8000
 
 struct
 {
