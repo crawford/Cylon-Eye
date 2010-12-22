@@ -1,0 +1,6 @@
+*.class
+moc_*.cpp
+qrc_*.cpp
+ui_*.h
+*.o
+CylonEyeSim
