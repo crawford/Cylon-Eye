@@ -1,11 +1,12 @@
 -include local.mk
 
-COMPILER ?= gcc
-DEP_COMPILER ?= gcc
+CC ?= gcc
+DC ?= gcc
+GCJ ?= gcj
 
 CFLAGS += -fPIC -std=gnu99
 CPPFLAGS += -Wall -Iinclude
-CPPFLAGS += -Wno-pointer-sign -Wno-unused-variable
+JAVAFLAGS += -Icysim/cmdproc
 
 CPPFLAGS += $(shell pkg-config --cflags libxml-2.0) $(shell pkg-config --cflags glib-2.0)
 LDFLAGS += $(shell pkg-config --libs libxml-2.0) $(shell pkg-config --libs glib-2.0)
@@ -13,11 +14,11 @@ LDFLAGS += $(shell pkg-config --libs libxml-2.0) $(shell pkg-config --libs glib-
 TOPDIR := $(PWD)
 CURDIR := $(TOPDIR)
 
-SUBDIRS := src
+SUBDIRS := src cysim/cmdproc
 
-CLEAN_TARGETS = $(SUBDIRS:=/clean)
-DEPENDENCIES_TARGETS = $(SUBDIRS:=/dependencies)
-COMPILE_TARGETS = $(SUBDIRS:=/compile)
+CLEAN_TARGETS := $(SUBDIRS:=/clean)
+DEPENDENCIES_TARGETS := $(SUBDIRS:=/dependencies)
+COMPILE_TARGETS := $(SUBDIRS:=/compile)
 
 .PHONY: dependencies clean all compile
 .DEFAULT_GOAL: all
@@ -54,12 +55,12 @@ $(foreach subdir, $(SUBDIRS), $(eval $(call subdirRule, $(subdir))))
 CURDIR := $(TOPDIR)
 
 %.d: %.c
-	$(DEP_COMPILER) -MM $(CPPFLAGS) -MQ $(@:.d=.o) -MQ $@ -MF $*.d $<
+	$(DC) -MM $(CPPFLAGS) -MQ $(@:.d=.o) -MQ $@ -MF $*.d $<
 
 %.o: %.c
-	$(COMPILER) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
+	$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
 
 %.so:
-	$(COMPILER) -shared $(LDFLAGS) -o $@ $(SO_OBJECTS)
+	$(CC) -shared $(LDFLAGS) -o $@ $(SO_OBJECTS)
 
 # vim:tw=80
