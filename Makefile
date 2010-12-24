@@ -1,6 +1,7 @@
 -include local.mk
 
 CC ?= gcc
+CXX ?= g++
 DC ?= gcc
 GCJ ?= gcj
 
