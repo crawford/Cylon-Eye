@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
 		qCritical("Error: specified config file not found");
 		return -2;
 	}
-	if(!QFile::exists("CmdProc.class")) {
+	if(!QFile::exists("CmdProc")) {
 		qCritical("Error: command processor ('CmdProc.class') not found");
 		return -3;
 	}

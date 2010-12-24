@@ -77,7 +77,7 @@ bool MainWindow::parseConfig() {
 
 bool MainWindow::startCmdProc() {
 	cmdProc = new QProcess();
-	cmdProc->start("java CmdProc");
+	cmdProc->start("./CmdProc");
 	if(!cmdProc->waitForStarted(5000)) {
 		qDebug() << cmdProc->errorString();
 		return false;
