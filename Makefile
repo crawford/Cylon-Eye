@@ -14,7 +14,7 @@ LDFLAGS += $(shell pkg-config --libs libxml-2.0) $(shell pkg-config --libs glib-
 TOPDIR := $(PWD)
 CURDIR := $(TOPDIR)
 
-SUBDIRS := src cysim/cmdproc
+SUBDIRS := src cysim/cmdproc cysim/gui
 
 CLEAN_TARGETS := $(SUBDIRS:=/clean)
 DEPENDENCIES_TARGETS := $(SUBDIRS:=/dependencies)
