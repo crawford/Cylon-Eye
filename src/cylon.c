@@ -43,6 +43,7 @@ static CYLStatus cyl_expect_init( GError **error ) {
 		cyl_set_error_literal(error, CYL_ERROR_UNINITIALIZED);
 		return CYL_STATUS_ERROR;
 	}
+	return CYL_STATUS_NORMAL;
 }
 
 CYLStatus cyl_init( gint fd, GError **error ) {
@@ -80,7 +81,7 @@ static CYLStatus cyl_raw( const guint8* const buf, const gssize count, gsize *wr
 		g_static_mutex_unlock(cyl_raw_mutex);
 		return CYL_STATUS_ERROR;
 	}
-	if( G_LIKELY(g_io_channel_write_chars(cyl_io, buf, count, written, error) == G_IO_STATUS_NORMAL) ) {
+	if( G_LIKELY(g_io_channel_write_chars(cyl_io, (const gchar *) buf, count, written, error) == G_IO_STATUS_NORMAL) ) {
 		g_assert(*written == count);
 	} else {
 		g_static_mutex_unlock(cyl_raw_mutex);
@@ -179,17 +180,17 @@ CYLStatus cyl_packet( const cyl_op operation, const guint8* const buf, const cyl
 			break;
 		case CYL_PAUSE:
 			packet[0] = 'P';
-			packet[2] = '\n';
+			packet[1] = '\n';
 			count = 2;
 			break;
 		case CYL_RESET:
 			packet[0] = 'R';
-			packet[2] = '\n';
+			packet[1] = '\n';
 			count = 2;
 			break;
 		case CYL_NOOP:
 			packet[0] = 'N';
-			packet[2] = '\n';
+			packet[1] = '\n';
 			count = 2;
 			break;
 		case CYL_LED:

@@ -1,7 +1,6 @@
-Makefile
-CMakeCache.txt
-CMakeFiles/
-cmake_install.cmake
-install_manifest.txt
 *.so
 *~
+.*.swp
+*.o
+*.d
+local.mk
