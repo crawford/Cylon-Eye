@@ -229,7 +229,7 @@ void transChar(unsigned char data)
 
 
 //Serial transmit interrupt
-void _ISR _U1TXInterrupt (void)
+void __attribute__((interrupt, no_auto_psv)) _ISR _U1TXInterrupt (void)
 {
 	if(_U1TXIF)
 	{
@@ -244,9 +244,8 @@ void _ISR _U1TXInterrupt (void)
 	}
 }
 
-
 //Serial recieve interrupt
-void _ISR _U1RXInterrupt(void)
+void __attribute__((interrupt, no_auto_psv)) _ISR _U1RXInterrupt(void)
 {
 	if(_U1RXIF)
 	{
@@ -265,7 +264,7 @@ void _ISR _U1RXInterrupt(void)
 
 
 //Flash timer interrupt
-void _ISR _T1Interrupt (void)
+void __attribute__((interrupt, no_auto_psv)) _ISR _T1Interrupt (void)
 {
 	lCount++;
 	lCount %= 49;
@@ -283,19 +282,19 @@ void _ISR _T1Interrupt (void)
 	
 	PORTB = newVal;
 	
-	unsigned int aVal = (~(LIGHT15 | LIGHT16)) & PORTB; //Set up the last two lights
-	if (newVal & 0x4000)
-		aVal |= LIGHT15;
-	if (newVal & 0x8000)
-		aVal |= LIGHT16;
-	PORTB = aVal;
+	unsigned int aVal = (~(LIGHT1 | LIGHT2)) & PORTA; //Set up the last two lights
+	if (newVal & 0x0001)
+		aVal |= LIGHT1;
+	if (newVal & 0x0002)
+		aVal |= LIGHT2;
+	PORTA = aVal;
 	
 	_T1IF = 0;
 } // _T1Interrupt
 
 
 //Animation timer interrupt
-void _ISR _T2Interrupt (void)
+void __attribute__((interrupt, no_auto_psv)) _ISR _T2Interrupt (void)
 {
 	++aniFrameTicker;
 	if(aniFrameTicker >= aniFrames[aniPos].dTime) //New frame
@@ -333,7 +332,7 @@ void _ISR _T2Interrupt (void)
 
 
 //System light timer interrupt
-void _ISR _T3Interrupt (void)
+void __attribute__((interrupt, no_auto_psv)) _ISR _T3Interrupt (void)
 {
 	unsigned int tPort = PORTA;
 
@@ -364,15 +363,6 @@ void _ISR _T3Interrupt (void)
 } // _T3Interrupt
 
 
-void notify(unsigned char code)
-{
-	_T1IE = 0;
-	_T2IE = 0;
-	PORTB = 0xFF00 + code;
-	PORTA = 0x000B;
-	while(1){
-	}
-}
 
 //Processes the next message in the receive buffer
 void processMsg()
@@ -387,22 +377,26 @@ void processMsg()
 				aniPause();
 			readFrame(curFrame);
 			setFrame(curFrame);
+			sysErrorCode = 0;
 			break;
 		case 'B': //Get the current frame
 			transChar('B');
 			transData(curFrame, BYTECOUNT);
 			transChar(0x0A);
+			sysErrorCode = 0;
 			break;
 		case 'X': //Set the animation position
 			temp = (rxBuff[nextRxRead()] << 8);
 			temp += rxBuff[nextRxRead()];
 			aniPos = temp;
+			sysErrorCode = 0;
 			break;
 		case 'Y': //Get the animation position
 			transChar('Y');
 			transChar(aniPos >> 8);
 			transChar(aniPos & 0x00FF);
 			transChar(0x0A);
+			sysErrorCode = 0;
 			break;
 		case 'D': //Write an animation frame
 			temp = (rxBuff[nextRxRead()] << 8);
@@ -413,17 +407,21 @@ void processMsg()
 				aniFrames[aniPos].data[i] = rxBuff[nextRxRead()];
 			}
 			aniPos++;
+			sysErrorCode = 0;
 			break;
 		case 'S': //Start the animation
 			aniRepeatCount = 0;
 			aniRepeat = rxBuff[nextRxRead()];
 			aniStart();
+			sysErrorCode = 0;
 			break;
 		case 'P': //Pause the animation
 			aniPause();
+			sysErrorCode = 0;
 			break;
 		case 'R': //Reset the animation
 			aniReset();
+			sysErrorCode = 0;
 			break;
 		case 'T': //Set the frame period
 			temp = (rxBuff[nextRxRead()] << 8);
@@ -431,6 +429,7 @@ void processMsg()
 			PR2 = temp;
 			TMR2 = 0x00;
 			aniTickPeriod = temp;
+			sysErrorCode = 0;
 			break;
 		case 'L': //Turn the aux light on or off
 			temp = PORTA;
@@ -443,9 +442,10 @@ void processMsg()
 				temp &= ~AUXLIGHT;
 			}
 			PORTA = temp;
+			sysErrorCode = 0;
 			break;
 		default: //Invalid command
-			notify(1);
+			sysErrorCode = 1;
 			break;
 	}
 	
@@ -456,15 +456,17 @@ int main()
 {
 	_RCDIV = 0;		//Set clock to 8MHz
 
+	// RB1 RX
+	// RB0 TX
 	TRISA = 0x0000;
-	TRISB = 0x8000;
+	TRISB = 0x0002;
 	PORTA = 0x0000;
 	PORTB = 0x0000;
 
 	AD1PCFG = 0xFFFF;			//Disable all analog channels
 
-	_RP14R = 3;		//Assign TX to RB14
-	_U1RXR = 15;	//Assign RX to RB15
+	_RP0R = 3;      //Assign TX to RB0
+	_U1RXR = 1;	    //Assign RX to RB1
 	
 	//Setup Serial Comm
 	_UARTEN = 0;	//Disable UART
@@ -551,10 +553,9 @@ int main()
 	
 	lCount = 0;
 	int i;
-	for(i = 0; i<8; ++i)
+	for(i = 0; i<16; ++i)
 	{
-		lightInt[2*i] = i;
-		lightInt[2*i + 1] = i;
+		lightInt[i] = 0;
 	}
 
 	//Notification setup
